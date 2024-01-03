@@ -6,7 +6,9 @@ from .serializers import ProductSerializer, OrderSerializer
 from .models import Product, Order
 from rest_framework.permissions import IsAuthenticated
 
+
 class ProductAPI(APIView):
+    """The ProductAPI class is a view for handling API requests related to products."""
 
     permission_classes = [IsAuthenticated]
 
@@ -122,9 +124,14 @@ class ProductAPI(APIView):
 
 
 class OrderAPI(APIView):
+    """
+    The `OrderAPI` class is a Django REST framework view that handles GET and POST requests for
+    retrieving and creating orders.
+
+    """
 
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
         try:
             order_id = request.query_params.get('order_id')          

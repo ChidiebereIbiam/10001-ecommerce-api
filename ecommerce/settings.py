@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     #third party
     'corsheaders',
     'rest_framework',
+    'drf_yasg',
 ]
 
 
