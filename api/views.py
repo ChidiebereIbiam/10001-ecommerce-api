@@ -5,12 +5,24 @@ from rest_framework import status
 from .serializers import ProductSerializer, OrderSerializer
 from .models import Product, Order
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
+from .filters import ProductFilter
+
+class CustomPagination(PageNumberPagination):
+    page_size = 2
+    page_size_query_param = 'page_size'
+    max_page_size = 50
+    page_query_param = 'p'
 
 
 class ProductAPI(APIView):
     """The ProductAPI class is a view for handling API requests related to products."""
 
     permission_classes = [IsAuthenticated]
+    pagination_class = PageNumberPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
 
     def get(self, request):
         try:
@@ -26,12 +38,14 @@ class ProductAPI(APIView):
                 }, status=status.HTTP_200_OK)
             else:
                 product = Product.objects.all()
-                serializer = ProductSerializer(product, many = True)
+                filterset = ProductFilter(request.query_params, queryset=product)
+                filtered_queryset = filterset.qs
+                serializer = ProductSerializer(filtered_queryset, many = True)
                 return Response({
                     "success": True,
-                    "message": f"All Products",
+                    "message": "All Products",
                     "response": serializer.data,
-                }, status=status.HTTP_200_OK)
+                })
 
            
         except Exception as e:
