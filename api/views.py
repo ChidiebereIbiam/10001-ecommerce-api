@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,7 +15,7 @@ class ProductAPI(APIView):
             product_id = request.query_params.get('product_id')          
 
             if product_id:
-                product = Product.objects.filter(id=product_id).first()
+                product = get_object_or_404(Product, id=product_id)
                 serializer = ProductSerializer(product, many = False)
                 return Response({
                 "success": True,
@@ -62,4 +63,60 @@ class ProductAPI(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+    def put(self, request):
+        try:
+            product_id = request.query_params.get('product_id')
+
+            if not product_id:
+                return Response(
+                    {"success": False, "message": "No Product ID Provided"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            product = get_object_or_404(Product, id=product_id)
+
+            serializer = ProductSerializer(product, data=request.data)
+            if serializer.is_valid():
+                product = serializer.save()
+                return Response(
+                    {
+                        "success": True,
+                        "message": "Product Updated successfully",
+                        "response": ProductSerializer(product).data,
+                    },
+                    status=status.HTTP_200_OK
+                )
+            else:
+                return Response(
+                    {"success": False, "message": serializer.errors},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except Exception as e:
+            return Response(
+                {"success": False, "message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+    def delete(self, request):
+        try:
+            product_id = request.query_params.get('product_id')
+
+            if not product_id:
+                return Response(
+                    {"success": False, "message": "No Product ID Provided"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            product = get_object_or_404(Product, id=product_id)
+    
+            product.delete()
+    
+            return Response(
+                {"success": True, "message": "Product Deleted successfully"},
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {"success": False, "message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
