@@ -2,11 +2,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from django.views.decorators.csrf import csrf_exempt
-from .serializers import ProductSerializer
-from .models import Product
-import json
-
+from .serializers import ProductSerializer, OrderSerializer
+from .models import Product, Order
 
 class ProductAPI(APIView):
 
@@ -119,4 +116,72 @@ class ProductAPI(APIView):
                 {"success": False, "message": str(e)},
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+
+class OrderAPI(APIView):
+    def get(self, request):
+        try:
+            order_id = request.query_params.get('order_id')          
+
+            if order_id:
+                order = get_object_or_404(Order, id=order_id)
+                serializer = OrderSerializer(order, many=False)
+                return Response({
+                    "success": True,
+                    "message": f"Order Details for {order_id}",
+                    "response": serializer.data,
+                }, status=status.HTTP_200_OK)
+            else:
+                orders = Order.objects.all()  # Corrected this line
+                serializer = OrderSerializer(orders, many=True)  # Corrected this line
+                return Response({
+                    "success": True,
+                    "message": f"All Orders",
+                    "response": serializer.data,
+                }, status=status.HTTP_200_OK)
+           
+        except Exception as e:
+            return Response(
+                {"success": False, 
+                "message": str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST)
+
+
+    def post(self, request):
+        try:
+            product_id = request.data.get('product_id')
+            quantity = request.data.get('quantity')
+
+            if not product_id or not quantity:
+                return Response(
+                    {"success": False, "message": "Product ID and Quantity are required"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            product = get_object_or_404(Product, id=product_id)
+
+            if product.stock_quantity < quantity:
+                return Response(
+                    {"success": False, "message": "Not enough Stock Quantity, try ordering for a lesser quantity"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            total_price = quantity * product.price
+            order = Order.objects.create(product=product, quantity=quantity, total_price=total_price)
+
+            product.stock_quantity -= quantity
+            product.save()
+
+            serializer = OrderSerializer(order)
+            return Response({
+                "success": True,
+                "message": "Order created successfully",
+                "response": serializer.data,
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response(
+                {"success": False,
+                 "message": str(e)},
+                status=status.HTTP_400_BAD_REQUEST)
 
