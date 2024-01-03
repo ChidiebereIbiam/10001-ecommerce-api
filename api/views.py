@@ -4,8 +4,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import ProductSerializer, OrderSerializer
 from .models import Product, Order
+from rest_framework.permissions import IsAuthenticated
 
 class ProductAPI(APIView):
+
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         try:
@@ -119,6 +122,9 @@ class ProductAPI(APIView):
 
 
 class OrderAPI(APIView):
+
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
         try:
             order_id = request.query_params.get('order_id')          
