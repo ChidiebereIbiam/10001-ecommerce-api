@@ -159,8 +159,8 @@ class OrderAPI(APIView):
                     "response": serializer.data,
                 }, status=status.HTTP_200_OK)
             else:
-                orders = Order.objects.all()  # Corrected this line
-                serializer = OrderSerializer(orders, many=True)  # Corrected this line
+                orders = Order.objects.all()  
+                serializer = OrderSerializer(orders, many=True)  
                 return Response({
                     "success": True,
                     "message": f"All Orders",
