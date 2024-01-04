@@ -55,6 +55,13 @@ For Test Purpose you can use the following login details to obtain the token:
 
 **Description:** Retrieve a list of all products.
 
+**Parameters:**
+- `name` (optional): Filter products by name (case-insensitive)
+- `category` (optional): Filter products by category
+- `price__gte` (optional): Filter products with a price greater than or equal to the specified value
+- `price__lte` (optional): Filter products with a price less than or equal to the specified value
+- `stock_quantity__gte` (optional): Filter products with a stock quantity greater than or equal to the specified value
+
 **Request:**
 ```bash
 curl --location 'https://10001-ecommerce-api-production.up.railway.app/api/product/'
@@ -364,10 +371,12 @@ curl  -X POST \
 
 #### Swagger and Redoc Documentation
 
-- Swagger UI: `/swagger/`
-- Redoc: `/redoc/`
+- Swagger UI: `https://10001-ecommerce-api-production.up.railway.app/swagger/`
+- Redoc: `https://10001-ecommerce-api-production.up.railway.app/redoc/`
 
 #### Token Endpoints
 
 - Obtain Token: `POST /token/`
 - Refresh Token: `POST /token/refresh/`
+
+GITHUB REPO LINK: https://github.com/ChidiebereIbiam/10001-ecommerce-api
